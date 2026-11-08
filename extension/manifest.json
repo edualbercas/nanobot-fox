@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Nanobot Panel",
+  "name": "nanobot-fox",
   "version": "1.0",
   "description": "Opens the Nanobot panel (http://127.0.0.1:8765/) in the Firefox sidebar.",
   "author": "Castillo Eduardo <hellocodelinux@gmail.com>",
@@ -12,7 +12,7 @@
   },
   "commands": {"open-nanobot-panel": {"suggested_key": {"default": "Ctrl+Shift+N"}, "description": "Open the Nanobot sidebar panel"}},
   "background": {"scripts": ["background.js"]},
-  "sidebar_action": {"default_title": "Nanobot Panel", "default_panel": "panel.html", "default_icon": {"16": "icon-16.png", "32": "icon-32.png", "48": "icon-48.png"}, "open_at_install": true},
+  "sidebar_action": {"default_title": "nanobot-fox", "default_panel": "panel.html", "default_icon": {"16": "icon-16.png", "32": "icon-32.png", "48": "icon-48.png"}, "open_at_install": true},
   "host_permissions": ["http://127.0.0.1:8765/*", "<all_urls>"],
   "permissions": ["tabs", "scripting", "activeTab", "nativeMessaging"]
 }
