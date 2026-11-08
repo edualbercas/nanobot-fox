@@ -108,8 +108,8 @@ nanobot-fox/
 │   └── icon-*.png
 ├── nanobot-panel.xpi     # Packaged extension, ready to install
 ├── skills/
-│   ├── SKILL.md          # Skill for Nanobot (see also AGENT.md)
-│   ├── AGENT.md          # Instructions for the agent
+│   ├── SKILL.md          # Skill for Nanobot (see also AGENT_INSTRUCTIONS.md)
+│   ├── AGENT_INSTRUCTIONS.md          # Instructions for the agent
 │   ├── native_host.py    # Native Messaging host + HTTP bridge on 127.0.0.1:8766
 │   └── nanobot.browser.json  # Manifest template
 └── README.md
