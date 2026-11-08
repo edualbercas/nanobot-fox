@@ -1,73 +1,122 @@
-# Nanobot Firefox Browser Bridge
+# Nanobot Fox
 
-Firefox extension and Nanobot skill that let Nanobot inspect and control the active Firefox session.
+Extensión de Firefox + skill de Nanobot que permiten a Nanobot inspeccionar y controlar la sesión activa de Firefox (listar pestañas, navegar, leer páginas, hacer clic, escribir, extraer enlaces y capturar pantallas).
 
-## How it works
+Además incluye un panel lateral (`Ctrl+Shift+N`) que abre la interfaz local de Nanobot en `http://127.0.0.1:8765/`.
 
-The Firefox extension connects to the Native Messaging host. The host then exposes a local HTTP API on `127.0.0.1:8766` for Nanobot. Commands sent to that API are forwarded to the extension and the browser result is returned to Nanobot.
+## Arquitectura
 
-The HTTP API is available only on the local machine and requires a private bearer token stored in `~/.nanobot/browser-token`.
-
-## Install
-
-1. Install `nanobot-panel.xpi` in Firefox from `about:addons` → gear menu → Install Add-on From File.
-2. Copy the `skills` directory to a permanent location, for example `~/.nanobot/workspace/skills/firefox-browser`.
-3. Set the absolute path to `native_host.py` in `~/.mozilla/native-messaging-hosts/nanobot.browser.json`:
-
-```json
-{
-  "name": "nanobot.browser",
-  "description": "Local HTTP bridge for Nanobot Firefox extension",
-  "path": "/home/USER/.nanobot/workspace/skills/firefox-browser/native_host.py",
-  "type": "stdio",
-  "allowed_extensions": ["nanobot-panel@localhost"]
-}
+```
+Nanobot ──HTTP──▶ 127.0.0.1:8766 (native_host.py) ──Native Messaging──▶ Extensión Nanobot Panel ──▶ Firefox
 ```
 
-4. Make the host executable:
+- La extensión se comunica con el **Native Messaging host** (`skills/native_host.py`).
+- El host expone una API HTTP local solo en `127.0.0.1:8766`, protegida con un bearer token privado en `~/.nanobot/browser-token` (permisos 0600).
+- Los comandos enviados a esa API se reenvían a la extensión y el resultado vuelve a Nanobot.
+- **Nunca** expongas el puerto 8766 ni el token fuera de la máquina local.
+
+## Requisitos
+
+- Firefox Developer Edition (o cualquier Firefox ≥ 142) con la extensión instalada.
+- Python 3 (solo stdlib) para el native host.
+- Nanobot corriendo en la misma máquina.
+
+## Instalación (usuario)
+
+1. **Instalar la extensión**
+   - Abrí `about:addons` en Firefox → menú de engranaje → **Install Add-on From File** → seleccioná `nanobot-panel.xpi`.
+   - Al instalarse se abre solo el panel lateral de Nanobot.
+
+2. **Instalar el native host**
+   - Copiá la carpeta `skills/` a una ubicación permanente, por ejemplo:
+     ```bash
+     mkdir -p ~/.nanobot/workspace/skills/firefox-browser
+     cp -r skills/* ~/.nanobot/workspace/skills/firefox-browser/
+     chmod +x ~/.nanobot/workspace/skills/firefox-browser/native_host.py
+     ```
+   - Creá el manifest de native messaging `~/.mozilla/native-messaging-hosts/nanobot.browser.json` con la ruta absoluta a tu `native_host.py`:
+     ```json
+     {
+       "name": "nanobot.browser",
+       "description": "Local HTTP bridge for Nanobot Firefox extension",
+       "path": "/home/TU_USUARIO/.nanobot/workspace/skills/firefox-browser/native_host.py",
+       "type": "stdio",
+       "allowed_extensions": ["nanobot-panel@localhost"]
+     }
+     ```
+     > ⚠️ `allowed_extensions` debe contener exactamente `nanobot-panel@localhost` (con el `@`). Un error aquí hace que Firefox nunca inicie el host, sin avisar.
+
+3. **Reiniciar Firefox**
+   - Cerrá y volvé a abrir Firefox. El host se inicia automáticamente cuando la extensión se conecta.
+   - Dejá Firefox abierto mientras Nanobot lo controla.
+
+## Verificación rápida
 
 ```bash
-chmod +x ~/.nanobot/workspace/skills/firefox-browser/native_host.py
-```
-
-5. Restart Firefox. Keep Firefox running while Nanobot controls it.
-
-## Test
-
-Check whether the extension is connected:
-
-```bash
+# ¿La extensión está conectada?
 curl -s http://127.0.0.1:8766/status
+# Esperado: {"success":true,"firefox_connected":true}
+
+# Listar pestañas
+TOKEN="$(cat ~/.nanobot/browser-token)"
+curl -sS -X POST http://127.0.0.1:8766/command \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{"action":"get_tabs"}'
 ```
 
-Expected response:
+## Acciones disponibles
 
-```json
-{"success":true,"firefox_connected":true}
-```
+| Acción | Parámetros | Descripción |
+|---|---|---|
+| `get_tabs` | — | Lista todas las pestañas |
+| `get_active_tab` | — | Pestaña activa (URL, título) |
+| `navigate` | `params.url` | Navega la pestaña activa |
+| `open_tab` | `params.url` | Abre una pestaña nueva |
+| `read_page` | — | Texto de la página activa |
+| `click` | `params.selector` | Clic en el primer elemento que matchea |
+| `type` | `params.selector`, `params.text` | Escribe en el primer elemento que matchea |
+| `extract_links` | — | Links de la página activa |
+| `screenshot` | — | Captura de la pestaña activa |
 
-List tabs:
+Ejemplo de comando:
 
 ```bash
-TOKEN="$(cat ~/.nanobot/browser-token)"
-curl -sS -X POST http://127.0.0.1:8766/command -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d '{"action":"get_tabs"}'
+curl -sS -X POST http://127.0.0.1:8766/command \
+  -H "Authorization: Bearer $(cat ~/.nanobot/browser-token)" \
+  -H 'Content-Type: application/json' \
+  -d '{"action":"navigate","params":{"url":"https://github.com/HKUDS/nanobot"}}'
 ```
 
-## Supported actions
+Los comandos esperan la respuesta de la extensión y hacen timeout a los **45 segundos**. Si la extensión no está conectada, el endpoint devuelve **503**.
 
-- `get_tabs`
-- `get_active_tab`
-- `navigate` with `params.url` and optional `params.tabId`
-- `open_tab` with `params.url`
-- `close_tab` with `params.tabId`
-- `switch_tab` with `params.tabId`
-- `read_page` with optional `params.tabId`
-- `get_page_html` with optional `params.tabId`
-- `screenshot`
-- `click` with `params.selector` and optional `params.tabId`
-- `type` with `params.selector`, `params.text` and optional `params.tabId`
-- `submit_form` with `params.selector` and optional `params.tabId`
-- `extract_links` with optional `params.tabId`
-- `search_page` with `params.query` and optional `params.tabId`
+## Solución de problemas
 
-The complete Nanobot instructions and command examples are in `skills/SKILL.md`.
+- **`firefox_connected: false` o 503**: verificá que `allowed_extensions` en `~/.mozilla/native-messaging-hosts/nanobot.browser.json` sea exactamente `["nanobot-panel@localhost"]`, matá procesos viejos del host y reiniciá Firefox.
+- **`navigate` devuelve la URL anterior con estado `loading`**: confirmá con `get_active_tab` antes de asumir que cambió la página.
+- **`type` escribió en otra página**: el selector apunta a la pestaña activa; verificá `get_active_tab` antes de acciones específicas de página.
+- **Ejecutar `native_host.py` manualmente NO lo conecta a Firefox**: el host solo funciona cuando Firefox lo inicia vía Native Messaging.
+
+## Estructura del repo
+
+```
+nanobot-fox/
+├── extension/            # Código fuente de la extensión (MV3)
+│   ├── manifest.json     # id: nanobot-panel@localhost
+│   ├── background.js
+│   ├── panel.html / panel.js
+│   └── icon-*.png
+├── nanobot-panel.xpi     # Extensión empaquetada, lista para instalar
+├── skills/
+│   ├── SKILL.md          # Skill para Nanobot (ver también AGENT.md)
+│   ├── AGENT.md          # Instrucciones para el agente
+│   ├── native_host.py    # Native Messaging host + puente HTTP 127.0.0.1:8766
+│   └── nanobot.browser.json  # Manifest template
+└── README.md
+```
+
+## Seguridad
+
+- El puente HTTP escucha solo en `127.0.0.1` y exige bearer token.
+- El token se genera con `secrets.token_urlsafe(32)` y se guarda en `~/.nanobot/browser-token` con permisos `0600`.
+- No expongas ni el token ni el puerto a otras máquinas.
