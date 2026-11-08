@@ -10,7 +10,7 @@ Nanobot controls Firefox through the Nanobot Panel extension and a local HTTP br
 
 ## Install
 
-Set the absolute path to `native_host.py` in `nanobot.browser.json`, then install that manifest in `~/.mozilla/native-messaging-hosts/nanobot.browser.json`.
+Set the absolute path to `native_host.py` in `nanobot.browser.json`, then install that manifest in `~/.mozilla/native-messaging-hosts/nanobot.browser.json`. The manifest's `allowed_extensions` must contain the exact extension id `nanobot-panel@localhost` (with the `@`); a typo here makes Firefox silently never spawn the host. `native_host.py` must be executable (chmod +x). After fixing the manifest, restart Firefox so it spawns a fresh host process.
 
 The host creates a private bearer token at `~/.nanobot/browser-token`. Nanobot reads this token when making requests. Do not expose it or the local bridge to other machines.
 
@@ -93,3 +93,9 @@ Use the same URL, headers and `curl` options shown in the send-command example f
 ## Important
 
 The extension must remain active in Firefox. Native Messaging starts the host; the host exposes the local HTTP endpoint for Nanobot. Running `native_host.py` manually does not connect it to Firefox.
+
+## Troubleshooting
+
+- `GET /status` returns `firefox_connected: false` or the command returns 503: the extension is not connected. Check `allowed_extensions` in `~/.mozilla/native-messaging-hosts/nanobot.browser.json` matches the extension id exactly (`nanobot-panel@localhost`), then restart Firefox. Kill stale host processes before restarting.
+- `navigate` may return the previous URL with status `loading`; confirm completion with `get_active_tab` before assuming the page changed.
+- `type` targets the first matching selector on the active tab; if the tab drifted to another page, the text lands there. Always check `get_active_tab` first when a page-specific action matters.
