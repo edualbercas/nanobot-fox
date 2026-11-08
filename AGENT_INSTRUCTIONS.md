@@ -1,4 +1,4 @@
-# AGENT.md — firefox-browser (Nanobot)
+# AGENT_INSTRUCTIONS.md — firefox-browser (Nanobot)
 
 Instructions for the Nanobot agent when using this skill. The canonical copy lives in `~/.nanobot/workspace/skills/firefox-browser/`.
 
@@ -11,6 +11,37 @@ Use it when the user asks to navigate, read, click, type, extract links, or take
 1. Firefox running with the **Nanobot Panel** extension installed (id `nanobot-panel@localhost`).
 2. Native host installed at `~/.mozilla/native-messaging-hosts/nanobot.browser.json` with `allowed_extensions` exactly `["nanobot-panel@localhost"]` (with `@`).
 3. The host exposes HTTP on `127.0.0.1:8766`; the bearer token is in `~/.nanobot/browser-token` (0600).
+
+## Installation (for the agent to guide the user)
+
+If the user needs to install the extension and native host:
+
+### 1. Install the extension
+- Open `about:addons` in Firefox → gear menu → **Install Add-on From File** → pick `nanobot-panel.xpi` (in repo root).
+- The Nanobot sidebar panel opens automatically on install (`Ctrl+Shift+N` to reopen).
+
+### 2. Install the native host
+```bash
+mkdir -p ~/.nanobot/workspace/skills/firefox-browser
+cp -r skills/* ~/.nanobot/workspace/skills/firefox-browser/
+chmod +x ~/.nanobot/workspace/skills/firefox-browser/native_host.py
+```
+
+### 3. Create native messaging manifest
+Create `~/.mozilla/native-messaging-hosts/nanobot.browser.json`:
+```json
+{
+  "name": "nanobot.browser",
+  "description": "Local HTTP bridge for Nanobot Firefox extension",
+  "path": "/home/YOUR_USER/.nanobot/workspace/skills/firefox-browser/native_host.py",
+  "type": "stdio",
+  "allowed_extensions": ["nanobot-panel@localhost"]
+}
+```
+> ⚠️ `allowed_extensions` must be exactly `nanobot-panel@localhost` (with `@`). A typo makes Firefox silently never spawn the host.
+
+### 4. Restart Firefox
+Close and reopen Firefox. The host starts automatically when the extension connects. Keep Firefox running while Nanobot controls it.
 
 ## Usage pattern
 
