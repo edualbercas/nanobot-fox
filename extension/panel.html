@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Nanobot Panel</title>
@@ -28,7 +28,7 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #ef4444; /* Desconectado por defecto */
+      background: #ef4444; /* Disconnected by default */
     }
     .dot.connected { background: #22c55e; }
     .dot.reconnecting { background: #eab308; }
@@ -36,7 +36,7 @@
 </head>
 <body>
   <iframe id="nanobot" src="http://127.0.0.1:8765/" title="Nanobot Panel"></iframe>
-  <div id="ws-indicator" title="Conexión con el Bridge de Nanobot">
+  <div id="ws-indicator" title="Connection to the Nanobot Bridge">
     <div id="ws-dot" class="dot"></div>
     <span id="ws-text">Bridge Offline</span>
   </div>

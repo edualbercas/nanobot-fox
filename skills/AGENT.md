@@ -1,68 +1,68 @@
 # AGENT.md — firefox-browser (Nanobot)
 
-Instrucciones para el agente Nanobot al usar esta skill. La versión canónica vive en `~/.nanobot/workspace/skills/firefox-browser/`.
+Instructions for the Nanobot agent when using this skill. The canonical copy lives in `~/.nanobot/workspace/skills/firefox-browser/`.
 
-## Cuándo usarla
+## When to use it
 
-Usala cuando el usuario pida navegar, leer, hacer clic, escribir, sacar links o capturar pantalla en Firefox, o cuando una tarea requiera interactuar con una página web abierta en el navegador del usuario.
+Use it when the user asks to navigate, read, click, type, extract links, or take a screenshot in Firefox, or when a task requires interacting with a web page open in the user's browser.
 
-## Requisitos previos (verificar antes de actuar)
+## Prerequisites (verify before acting)
 
-1. Firefox corriendo con la extensión **Nanobot Panel** instalada (id `nanobot-panel@localhost`).
-2. Native host instalado en `~/.mozilla/native-messaging-hosts/nanobot.browser.json` con `allowed_extensions` exactamente `["nanobot-panel@localhost"]` (con `@`).
-3. El host expone HTTP en `127.0.0.1:8766`; el bearer token está en `~/.nanobot/browser-token` (0600).
+1. Firefox running with the **Nanobot Panel** extension installed (id `nanobot-panel@localhost`).
+2. Native host installed at `~/.mozilla/native-messaging-hosts/nanobot.browser.json` with `allowed_extensions` exactly `["nanobot-panel@localhost"]` (with `@`).
+3. The host exposes HTTP on `127.0.0.1:8766`; the bearer token is in `~/.nanobot/browser-token` (0600).
 
-## Patrón de uso
+## Usage pattern
 
 ```bash
 TOKEN="$(cat ~/.nanobot/browser-token)"
 BASE="http://127.0.0.1:8766"
 
-# 1) Estado de conexión
+# 1) Connection status
 curl -s $BASE/status
 # {"success":true,"firefox_connected":true} → OK
-# firefox_connected:false o 503 → la extensión no está conectada; NO seguir
+# firefox_connected:false or 503 → extension not connected; DO NOT proceed
 
-# 2) Enviar comando
+# 2) Send a command
 curl -sS -X POST $BASE/command \
   -H "Authorization: Bearer $TOKEN" \
   -H 'Content-Type: application/json' \
-  -d '{"action":"ACCION","params":{...}}'
+  -d '{"action":"ACTION","params":{...}}'
 ```
 
-## Acciones
+## Actions
 
-| action | params | uso |
+| action | params | use |
 |---|---|---|
-| `get_tabs` | — | listar pestañas abiertas |
-| `get_active_tab` | — | pestaña activa ahora |
-| `navigate` | `url` | ir a una URL en la pestaña activa |
-| `open_tab` | `url` | abrir pestaña nueva |
-| `read_page` | — | texto plano de la página activa |
-| `click` | `selector` | clic en primer match del selector CSS |
-| `type` | `selector`, `text` | escribir texto en primer match |
-| `extract_links` | — | links de la página activa |
-| `screenshot` | — | captura de la pestaña activa |
+| `get_tabs` | — | list open tabs |
+| `get_active_tab` | — | current active tab |
+| `navigate` | `url` | go to a URL in the active tab |
+| `open_tab` | `url` | open a new tab |
+| `read_page` | — | plain text of the active page |
+| `click` | `selector` | click the first CSS selector match |
+| `type` | `selector`, `text` | type text into the first match |
+| `extract_links` | — | links on the active page |
+| `screenshot` | — | screenshot of the active tab |
 
-## Reglas importantes
+## Important rules
 
-- **Siempre** chequear `/status` primero. Si `firefox_connected` es false o hay 503, decírselo al usuario: hace falta que Firefox esté abierto con la extensión activa y el manifest bien configurado. No inventes resultados.
-- Timeout de comandos: **45s**. No reintentes en bucle; informá el fallo.
-- `navigate` puede devolver la URL anterior con estado `loading` → confirmá con `get_active_tab`.
-- `type` y `click` actúan sobre la **pestaña activa** y el **primer** elemento que matchea el selector → verificá `get_active_tab` antes si la acción depende de la página.
-- Ejecutar `native_host.py` a mano NO conecta nada a Firefox; solo Firefox inicia el host vía Native Messaging.
-- El token de `~/.nanobot/browser-token` es secreto local: nunca lo incluyas en mensajes, logs públicos ni URLs.
+- **Always** check `/status` first. If `firefox_connected` is false or you get a 503, tell the user: Firefox must be open with the extension active and the manifest configured correctly. Do not invent results.
+- Command timeout: **45s**. Do not retry in a loop; report the failure.
+- `navigate` may return the previous URL with status `loading` → confirm with `get_active_tab`.
+- `type` and `click` act on the **active tab** and the **first** matching element → check `get_active_tab` first if the action depends on the page.
+- Running `native_host.py` manually does NOT connect anything to Firefox; only Firefox starts the host via Native Messaging.
+- The token in `~/.nanobot/browser-token` is a local secret: never include it in messages, public logs, or URLs.
 
-## Flujo típico
+## Typical flow
 
-1. `get_active_tab` → saber dónde estamos.
-2. `navigate`/`open_tab` → ir al destino.
-3. `get_active_tab` → confirmar que cargó.
-4. `read_page` / `extract_links` → leer contenido.
-5. `click` / `type` → interactuar si hace falta.
-6. `screenshot` → evidencia visual si el usuario la pidió.
+1. `get_active_tab` → know where we are.
+2. `navigate` / `open_tab` → go to the target.
+3. `get_active_tab` → confirm it loaded.
+4. `read_page` / `extract_links` → read content.
+5. `click` / `type` → interact if needed.
+6. `screenshot` → visual evidence if the user asked for it.
 
 ## Troubleshooting
 
-- 503 / `firefox_connected:false` → revisar `allowed_extensions` (debe ser `nanobot-panel@localhost` con `@`), matar procesos viejos del host, reiniciar Firefox.
-- Resultados raros tras navegar → la pestaña pudo haber cambiado; re-chequear `get_active_tab`.
+- 503 / `firefox_connected:false` → check `allowed_extensions` (must be `nanobot-panel@localhost` with `@`), kill stale host processes, restart Firefox.
+- Odd results after navigating → the tab may have changed; re-check `get_active_tab`.
