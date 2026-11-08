@@ -23,7 +23,7 @@ cd nanobot-fox
 ```
 
 ### 2. Install the extension
-- Open `about:addons` in Firefox → gear menu → **Install Add-on From File** → pick `nanobot-panel.xpi` (in repo root).
+- Open `about:addons` in Firefox → gear menu → **Install Add-on From File** → pick `nanobot-fox.xpi` (in repo root).
 - The Nanobot sidebar panel opens automatically on install (`Ctrl+Shift+N` to reopen).
 - Extension ID: `nanobot-panel@localhost` (display name: "Nanobot Panel")
 

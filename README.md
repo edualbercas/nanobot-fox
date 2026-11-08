@@ -24,7 +24,7 @@ Nanobot ──HTTP──▶ 127.0.0.1:8766 (native_host.py) ──Native Messagi
 ## Install (user)
 
 1. **Install the extension**
-   - Open `about:addons` in Firefox → gear menu → **Install Add-on From File** → pick `nanobot-panel.xpi`.
+   - Open `about:addons` in Firefox → gear menu → **Install Add-on From File** → pick `nanobot-fox.xpi`.
    - The Nanobot sidebar panel opens automatically on install.
 
 2. **Install the native host**
@@ -106,7 +106,7 @@ nanobot-fox/
 │   ├── background.js
 │   ├── panel.html / panel.js
 │   └── icon-*.png
-├── nanobot-panel.xpi     # Packaged extension, ready to install
+├── nanobot-fox.xpi     # Packaged extension, ready to install
 ├── skills/
 │   ├── SKILL.md          # Skill for Nanobot (see also AGENT_INSTRUCTIONS.md)
 │   ├── AGENT_INSTRUCTIONS.md          # Instructions for the agent
