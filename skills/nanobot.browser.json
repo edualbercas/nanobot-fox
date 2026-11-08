@@ -1,0 +1,7 @@
+{
+  "name": "nanobot.browser",
+  "description": "Local HTTP bridge for Nanobot Firefox extension",
+  "path": "/ABSOLUTE/PATH/TO/native_host.py",
+  "type": "stdio",
+  "allowed_extensions": ["nanobot-panel@localhost"]
+}

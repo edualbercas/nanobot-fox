@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Nanobot Panel",
+  "version": "1.0",
+  "description": "Abre el panel de Nanobot (http://127.0.0.1:8765/) en el panel lateral de Firefox.",
+  "author": "Castillo Eduardo <hellocodelinux@gmail.com>",
+  "developer": {"name": "Castillo Eduardo"},
+  "homepage_url": "http://127.0.0.1:8765/",
+  "icons": {"16": "icon-16.png", "32": "icon-32.png", "48": "icon-48.png"},
+  "browser_specific_settings": {
+    "gecko": {"id": "nanobot-panel@localhost", "data_collection_permissions": {"required": ["none"]}, "strict_min_version": "142.0"}
+  },
+  "commands": {"open-nanobot-panel": {"suggested_key": {"default": "Ctrl+Shift+N"}, "description": "Abrir el panel lateral de Nanobot"}},
+  "background": {"scripts": ["background.js"]},
+  "sidebar_action": {"default_title": "Nanobot Panel", "default_panel": "panel.html", "default_icon": {"16": "icon-16.png", "32": "icon-32.png", "48": "icon-48.png"}, "open_at_install": true},
+  "host_permissions": ["http://127.0.0.1:8765/*", "<all_urls>"],
+  "permissions": ["tabs", "scripting", "activeTab", "nativeMessaging"]
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Nanobot Panel</title>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #1e1b4b; font-family: sans-serif; }
+    iframe { display: block; width: 100%; height: 100%; border: 0; }
+    #ws-indicator {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      z-index: 100;
+      padding: 6px 10px;
+      border-radius: 20px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #e2e8f0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444; /* Desconectado por defecto */
+    }
+    .dot.connected { background: #22c55e; }
+    .dot.reconnecting { background: #eab308; }
+  </style>
+</head>
+<body>
+  <iframe id="nanobot" src="http://127.0.0.1:8765/" title="Nanobot Panel"></iframe>
+  <div id="ws-indicator" title="Conexión con el Bridge de Nanobot">
+    <div id="ws-dot" class="dot"></div>
+    <span id="ws-text">Bridge Offline</span>
+  </div>
+  <script src="panel.js"></script>
+</body>
+</html>
