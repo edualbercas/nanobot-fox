@@ -4,6 +4,8 @@ Firefox extension + skill for [**Nanobot AI**](https://github.com/HKUDS/nanobot)
 
 It also includes a sidebar panel (`Ctrl+Shift+N`) that opens the local Nanobot UI at `http://127.0.0.1:8765/`.
 
+> 🤖 **Atención agente Nanobot:** antes de instalar o modificar nada de este repo, lee primero [`AGENT_INSTRUCTIONS.md`](AGENT_INSTRUCTIONS.md) — tiene los pasos de instalación para el agente.
+
 ## 🏗️ Architecture
 
 ```
