@@ -1,10 +1,10 @@
-# Nanobot Fox
+# 🦊 Nanobot Fox
 
-Firefox extension + Nanobot skill that let Nanobot inspect and control the active Firefox session (list tabs, navigate, read pages, click, type, extract links, and take screenshots).
+Firefox extension + skill for [**Nanobot AI**](https://github.com/HKUDS/nanobot) 🐈 — it lets Nanobot inspect and control the active Firefox session (list tabs, navigate, read pages, click, type, extract links, and take screenshots).
 
 It also includes a sidebar panel (`Ctrl+Shift+N`) that opens the local Nanobot UI at `http://127.0.0.1:8765/`.
 
-## Architecture
+## 🏗️ Architecture
 
 ```
 Nanobot ──HTTP──▶ 127.0.0.1:8766 (native_host.py) ──Native Messaging──▶ Nanobot Panel extension ──▶ Firefox
@@ -15,13 +15,13 @@ Nanobot ──HTTP──▶ 127.0.0.1:8766 (native_host.py) ──Native Messagi
 - Commands sent to that API are forwarded to the extension and the browser result is returned to Nanobot.
 - **Never** expose port 8766 or the token outside the local machine.
 
-## Requirements
+## 📋 Requirements
 
 - Firefox Developer Edition (or any Firefox ≥ 142) with the extension installed.
 - Python 3 (stdlib only) for the native host.
 - Nanobot running on the same machine.
 
-## Install (user)
+## 🚀 Install (user)
 
 1. **Install the extension**
    - Open `about:addons` in Firefox → gear menu → **Install Add-on From File** → pick `nanobot-fox.xpi`.
@@ -50,7 +50,7 @@ Nanobot ──HTTP──▶ 127.0.0.1:8766 (native_host.py) ──Native Messagi
    - Close and reopen Firefox. The host starts automatically when the extension connects.
    - Keep Firefox running while Nanobot controls it.
 
-## Quick check
+## ✅ Quick check
 
 ```bash
 # Is the extension connected?
@@ -65,7 +65,7 @@ curl -sS -X POST http://127.0.0.1:8766/command \
   -d '{"action":"get_tabs"}'
 ```
 
-## Available actions
+## 🎬 Available actions
 
 | Action | Params | Description |
 |---|---|---|
@@ -90,14 +90,14 @@ curl -sS -X POST http://127.0.0.1:8766/command \
 
 Commands wait for the extension response and time out after **45 seconds**. If the extension is not connected, the endpoint returns **503**.
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
 - **`firefox_connected: false` or 503**: check that `allowed_extensions` in `~/.mozilla/native-messaging-hosts/nanobot.browser.json` is exactly `["nanobot-panel@localhost"]`, kill stale host processes, and restart Firefox.
 - **`navigate` returns the previous URL with status `loading`**: confirm with `get_active_tab` before assuming the page changed.
 - **`type` wrote on another page**: the selector targets the active tab; check `get_active_tab` first for page-specific actions.
 - **Running `native_host.py` manually does NOT connect it to Firefox**: the host only works when Firefox spawns it via Native Messaging.
 
-## Repo structure
+## 📁 Repo structure
 
 ```
 nanobot-fox/
@@ -115,7 +115,7 @@ nanobot-fox/
 └── README.md
 ```
 
-## Security
+## 🔒 Security
 
 - The HTTP bridge listens on `127.0.0.1` only and requires a bearer token.
 - The token is generated with `secrets.token_urlsafe(32)` and stored in `~/.nanobot/browser-token` with mode `0600`.
