@@ -1,18 +1,41 @@
 {
   "manifest_version": 3,
-  "name": "nanobot-fox",
-  "version": "1.0",
-  "description": "Opens the Nanobot panel (http://127.0.0.1:8765/) in the Firefox sidebar.",
+  "name": "NanoFox for Nanobot",
+  "version": "1.1.0",
+  "description": "Control amplio de Firefox desde Nanobot mediante WebExtensions y Native Messaging.",
   "author": "Castillo Eduardo <hellocodelinux@gmail.com>",
   "developer": {"name": "Castillo Eduardo"},
-  "homepage_url": "http://127.0.0.1:8765/",
+  "homepage_url": "https://github.com/edualbercas/nanobot-fox",
   "icons": {"16": "icon-16.png", "32": "icon-32.png", "48": "icon-48.png"},
   "browser_specific_settings": {
-    "gecko": {"id": "nanobot-panel@localhost", "data_collection_permissions": {"required": ["none"]}, "strict_min_version": "142.0"}
+    "gecko": {
+      "id": "nanobot-panel@localhost",
+      "data_collection_permissions": {"required": ["none"]},
+      "strict_min_version": "142.0"
+    }
   },
-  "commands": {"open-nanobot-panel": {"suggested_key": {"default": "Ctrl+Shift+N"}, "description": "Open the Nanobot sidebar panel"}},
+  "commands": {
+    "open-nanobot-panel": {
+      "suggested_key": {"default": "Ctrl+Shift+N"},
+      "description": "Abrir el panel de Nanobot"
+    }
+  },
   "background": {"scripts": ["background.js"]},
-  "sidebar_action": {"default_title": "nanobot-fox", "default_panel": "panel.html", "default_icon": {"16": "icon-16.png", "32": "icon-32.png", "48": "icon-48.png"}, "open_at_install": true},
+  "sidebar_action": {
+    "default_title": "NanoFox",
+    "default_panel": "panel.html",
+    "default_icon": {"16": "icon-16.png", "32": "icon-32.png", "48": "icon-48.png"},
+    "open_at_install": true
+  },
   "host_permissions": ["http://127.0.0.1:8765/*", "<all_urls>"],
-  "permissions": ["tabs", "scripting", "activeTab", "nativeMessaging"]
+  "permissions": [
+    "tabs", "scripting", "activeTab", "nativeMessaging", "cookies", "history", "bookmarks",
+    "webRequest", "webRequestBlocking", "contextMenus", "storage", "notifications",
+    "downloads", "sessions", "webNavigation", "browsingData", "find", "topSites",
+    "permissions", "alarms", "idle", "clipboardRead", "clipboardWrite", "management",
+    "privacy", "proxy", "contextualIdentities", "browserSettings", "contentSettings",
+    "search", "dns", "identity", "geolocation", "tabHide", "unlimitedStorage", "pageCapture",
+    "debugger", "declarativeNetRequest", "userScripts", "captivePortal", "publicSuffix", "pkcs11",
+    "downloads.open", "webRequestAuthProvider", "webRequestFilterResponse"
+  ]
 }

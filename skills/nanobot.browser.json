@@ -1,6 +1,6 @@
 {
   "name": "nanobot.browser",
-  "description": "Local HTTP bridge for Nanobot Firefox extension",
+  "description": "NanoFox Native Messaging bridge for Firefox",
   "path": "/ABSOLUTE/PATH/TO/native_host.py",
   "type": "stdio",
   "allowed_extensions": ["nanobot-panel@localhost"]

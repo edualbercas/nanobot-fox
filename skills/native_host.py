@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import hmac
 import os
 import queue
 import secrets
@@ -50,6 +51,7 @@ def create_token():
     fd = os.open(TOKEN_FILE, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, "w") as handle:
         handle.write(token)
+    os.chmod(TOKEN_FILE, 0o600)
     return token
 
 
@@ -79,14 +81,20 @@ class Handler(BaseHTTPRequestHandler):
         if self.path != "/command":
             self.send_json(404, {"success": False, "error": "Not found"})
             return
-        if self.headers.get("Authorization") != f"Bearer {TOKEN}":
+        authorization = self.headers.get("Authorization", "")
+        if not hmac.compare_digest(authorization, f"Bearer {TOKEN}"):
             self.send_json(403, {"success": False, "error": "Unauthorized"})
             return
         try:
             size = int(self.headers.get("Content-Length", "0"))
             if size < 2 or size > 1024 * 1024:
                 raise ValueError("Invalid request size")
-            request = json.loads(self.rfile.read(size).decode("utf-8"))
+            raw_body = self.rfile.read(size)
+            if len(raw_body) != size:
+                raise ValueError("Incomplete request body")
+            request = json.loads(raw_body.decode("utf-8"))
+            if not isinstance(request, dict):
+                raise ValueError("request must be a JSON object")
             action = request.get("action")
             if not isinstance(action, str) or not action:
                 raise ValueError("action is required")
@@ -107,16 +115,17 @@ class Handler(BaseHTTPRequestHandler):
         with pending_lock:
             pending[request_id] = (event, response)
         commands.put({"id": request_id, "action": action, "params": params})
-        if not event.wait(45):
+        if not event.wait(120):
             with pending_lock:
                 pending.pop(request_id, None)
-            self.send_json(504, {"success": False, "error": "Firefox command timed out"})
+            self.send_json(504, {"success": False, "error": "Firefox command timed out after 120 seconds"})
             return
         self.send_json(200, response)
 
 
 def serve_http():
     server = ThreadingHTTPServer((HOST, PORT), Handler)
+    server.daemon_threads = True
     server.serve_forever()
 
 
